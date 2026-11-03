@@ -1,2 +1,1 @@
-# theearthmovie.com
-theearthmovie.com
+Static site.
