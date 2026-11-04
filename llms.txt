@@ -1,9 +1,9 @@
-# EARTH, The Movie
+# THE EARTH MOVIE
 
-> EARTH is a satirical feature film made with AI-generated characters, from Madwackd Productions. It is planned for Summer 2027 at watchvrmovie.com. theearthmovie.com is the official waitlist and sneak-peek site.
+> THE EARTH MOVIE (short name EARTH) is a satirical feature film made with AI-generated characters, from Madwackd Productions. It is planned for Summer 2027 at watchvrmovie.com. theearthmovie.com is the official waitlist and sneak-peek site.
 
 ## Facts
-- Title: EARTH (also called The Earth Movie)
+- Title: THE EARTH MOVIE (short name: EARTH)
 - Studio: Madwackd Productions (https://www.madwackd.com/)
 - Director and producer: Zach Wennstedt
 - Release: planned for Summer 2027; no exact date announced
@@ -12,6 +12,7 @@
 - Story: a backwards world hooked on its feeds; one guy wakes up; the lesson is that love and kindness are worth more than money
 - Rating intent: family friendly, no cussing, with adult allegories
 - AI disclosure: EARTH uses AI-generated characters, voices and imagery. Any resemblance to real persons is coincidental.
+- Tagline: Made with AI. Made for humanity.
 - Trailer: not released yet
 - Updates: join the waitlist at https://www.theearthmovie.com/#join
 

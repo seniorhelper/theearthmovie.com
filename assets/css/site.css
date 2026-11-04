@@ -241,3 +241,37 @@ p{margin:0 0 1em}
 .egg-bubble.on{opacity:1;transform:translateY(-50%) scale(1)}
 .egg-bubble.left.on{transform:translate(-100%,-50%) scale(1)}
 @media (max-width:760px){.gear-hint{bottom:2px;font-size:.74rem;padding:5px 10px}}
+/* v2: THE EARTH MOVIE wordmark, hero teaser polish */
+.mark picture,.mark img{display:block}
+.top .mark img{height:44px;width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}
+.top .mark{transition:transform .2s}
+.top .mark:hover{transform:scale(1.03)}
+.foot .foot-logo img{height:96px;width:auto}
+.hero-meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:0 0 16px}
+.hero-meta .eyebrow{margin:0;text-decoration:none}
+.hero-meta .eyebrow:hover{color:#fff}
+.badge-date{display:inline-flex;align-items:center;padding:7px 11px;border-radius:6px;background:linear-gradient(180deg,#ffe07a,#ffc45c);color:#231a00;font:700 .78rem/1 var(--ui);letter-spacing:.14em;text-transform:uppercase;box-shadow:0 0 0 1px rgba(255,244,220,.5),0 0 18px rgba(255,196,92,.4)}
+.hero .tagline{margin:0 0 8px;font:700 clamp(1.1rem,.95rem + .6vw,1.35rem)/1.25 var(--display);color:#fff4dc;text-shadow:0 0 14px rgba(255,196,92,.55)}
+.hero .line{margin-bottom:18px}
+.btn-seat{width:100%;font-size:1.08rem;padding:16px 22px;animation:seatGlow 2.6s ease-in-out infinite}
+.btn-seat svg{width:20px;height:20px;transition:transform .2s}
+.btn-seat:hover svg{transform:translateX(4px)}
+@keyframes seatGlow{0%,100%{box-shadow:0 6px 0 #5f9a12,0 10px 24px rgba(166,240,58,.25)}50%{box-shadow:0 6px 0 #5f9a12,0 10px 34px rgba(166,240,58,.6),0 0 0 4px rgba(166,240,58,.18)}}
+@media (max-width:760px){
+  .top .mark img{height:52px}
+  .hero-stage{height:24vh;height:24svh}
+  .hero-meta{margin-bottom:10px;gap:8px 10px}
+  .badge-date{padding:6px 9px;font-size:.7rem}
+  .hero .tagline{font-size:1.08rem;margin-bottom:6px}
+  .hero .line{font-size:.95rem;margin-bottom:12px}
+  .foot .foot-logo img{height:84px}
+}
+@media (prefers-reduced-motion:reduce){.btn-seat{animation:none}}
+.hero-meta .eyebrow::before{display:none}
+.top .mark img{height:54px}
+@media (max-width:760px){
+  .top .mark img{height:52px}
+  .join-row{grid-template-columns:1fr 1fr;gap:10px}
+  .hero-meta .eyebrow{font-size:.68rem;letter-spacing:.1em}
+}
+@media (max-width:340px){.join-row{grid-template-columns:1fr}}
