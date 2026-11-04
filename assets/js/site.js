@@ -77,7 +77,7 @@
   if (gv && gb) {
     var setG = function () {
       var playing = !gv.paused;
-      gb.innerHTML = (playing ? icons.pause : icons.play) + "<span>" + (playing ? "Pause glimpse" : "Play glimpse") + "</span>";
+      gb.innerHTML = (playing ? icons.pause : icons.play) + "<span>" + (playing ? "Pause teaser" : "Play teaser") + "</span>";
       gb.setAttribute("aria-pressed", playing ? "true" : "false");
     };
     var userPaused = false;
