@@ -3,6 +3,15 @@
   var loadT = Date.now();
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  var mb = document.querySelector(".menu-btn"), nav = document.getElementById("nav");
+  if (mb && nav) {
+    var close = function () { nav.classList.remove("open"); mb.setAttribute("aria-expanded", "false"); };
+    mb.addEventListener("click", function () { var o = nav.classList.toggle("open"); mb.setAttribute("aria-expanded", o ? "true" : "false"); });
+    nav.addEventListener("click", function (e) { if (e.target.closest("a")) close(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && nav.classList.contains("open")) { close(); mb.focus(); } });
+    document.addEventListener("click", function (e) { if (nav.classList.contains("open") && !e.target.closest(".top")) close(); });
+  }
+
   function dest(el) {
     try {
       return atob(el.getAttribute("data-a")) + String.fromCharCode(64) + atob(el.getAttribute("data-b")) + atob(el.getAttribute("data-c"));

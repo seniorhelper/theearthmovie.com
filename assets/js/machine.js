@@ -21,6 +21,10 @@
   var dropTimer = 0, puffTimer = 0, frameAcc = 0, frameN = 0;
   var puffSprite = null, chunkSprites = [], texCanvas = null, cloudCanvas = null;
   var seed = 7, ready = false;
+  /* interaction state */
+  var A = 0, v = 1, off = 0, offV = 0, wob = 0, wobV = 0, scrollBoost = 0, lastScroll = 0;
+  var hoverM = false, hotGear = null, drag = null, sparks = [], rings = [], egg = null, shoot = null, taps = 0, tapT = 0;
+  var bubble = null, hint = document.querySelector(".gear-hint"), hintBase = hint ? hint.textContent : "";
   function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
   function rr(a, b) { return a + (b - a) * Math.random(); }
 
@@ -133,7 +137,7 @@
     return g;
   }
   function solve(g) {
-    if (!g.parent) { g.rot = g.phase + g.w * t; return; }
+    if (!g.parent) { g.rot = g.phase + g.w * (A + off); return; }
     var p = g.parent, th = g.theta;
     var phi1 = (th - p.rot) * p.N / TAU;
     g.rot = th + Math.PI - (0.5 - phi1) * TAU / g.N;
@@ -347,6 +351,17 @@
 
   function step(dt) {
     t += dt;
+    if (!drag) {
+      var target = (hoverM ? 2.6 : 1) + scrollBoost;
+      v += (target - v) * (1 - Math.exp(-dt * 1.5));
+      A += v * dt;
+    }
+    scrollBoost *= Math.exp(-dt * 2.2);
+    offV += (-55 * off - 7 * offV) * dt; off += offV * dt;
+    wobV += (-260 * wob - 11 * wobV) * dt; wob += wobV * dt;
+    if (Math.abs(v) > 3.2 && Math.random() < Math.min(0.9, (Math.abs(v) - 3) * 0.12)) meshSpark();
+    stepSparks(dt);
+    stepEgg(dt);
     px += (tpx - px) * Math.min(1, dt * 3); py += (tpy - py) * Math.min(1, dt * 3);
     for (var i = 0; i < gears.length; i++) solve(gears[i]);
     var sc2 = S / 800;
@@ -371,7 +386,7 @@
         dr.x = gg.x + Math.cos(wa2) * ro; dr.y = gg.y + Math.sin(wa2) * ro;
         if (Math.sin(wa2) > 0.15) {
           dr.free = true;
-          var tv = gg.w * ro;
+          var tv = gg.w * ro * Math.max(-6, Math.min(6, v));
           dr.vx = -Math.sin(wa2) * tv; dr.vy = Math.cos(wa2) * tv;
         }
       } else {
@@ -580,6 +595,211 @@
     for (var k = 0; k < winds.length; k++) { var w = winds[k]; ctx.fillRect(w.x - 0.9, w.y - 0.9, 1.8, 1.8); }
   }
 
+  /* ---------- interaction: sparks, glow, kick, drag, easter egg ---------- */
+  var SPARK = ["#ffd23d", "#ff8a1f", "#ff3d9a", "#22c7ff", "#a6f03a", "#ffffff"];
+  var EARTHY = ["#22c7ff", "#1d8fe0", "#7fdc4a", "#3fae3a", "#e8f6ff"];
+  function addSpark(x, y, n, spd, earth) {
+    var cap = mobile ? 140 : 260;
+    for (var i = 0; i < n && sparks.length < cap; i++) {
+      var a = Math.random() * TAU, s = spd * (0.35 + Math.random() * 0.9);
+      sparks.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - spd * 0.25, l: 0, ml: rr(0.45, 1.1), c: earth ? EARTHY[i % EARTHY.length] : SPARK[i % SPARK.length], e: !!earth, r: earth ? rr(2, 4.2) : rr(1.3, 2.4) });
+    }
+  }
+  function meshSpark() {
+    var arr = layers[1]; if (!arr.length) return;
+    var g = arr[1 + Math.floor(Math.random() * (arr.length - 1))]; if (!g || !g.parent) return;
+    var p = g.parent, o = offs(1);
+    addSpark(p.x + Math.cos(g.theta) * p.r + o[0], p.y + Math.sin(g.theta) * p.r + o[1], 3, R * 2.2, false);
+  }
+  function stepSparks(dt) {
+    var grav = R * 4.5;
+    for (var i = sparks.length - 1; i >= 0; i--) {
+      var s = sparks[i]; s.l += dt;
+      if (s.l >= s.ml) { sparks.splice(i, 1); continue; }
+      s.vy += grav * dt * (s.e ? 0.6 : 1); s.vx *= 1 - dt * 1.2; s.x += s.vx * dt; s.y += s.vy * dt;
+    }
+    for (var j = rings.length - 1; j >= 0; j--) { rings[j].l += dt; if (rings[j].l > 0.55) rings.splice(j, 1); }
+    if (shoot) { shoot.l += dt; shoot.x += shoot.vx * dt; shoot.y += shoot.vy * dt; if (shoot.l > 1.4) shoot = null; }
+  }
+  function drawSparks() {
+    if (!sparks.length && !rings.length) return;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.lineCap = "round";
+    for (var i = 0; i < sparks.length; i++) {
+      var s = sparks[i], k = 1 - s.l / s.ml;
+      ctx.globalAlpha = k;
+      if (s.e) { ctx.fillStyle = s.c; ctx.beginPath(); ctx.arc(s.x, s.y, s.r * (0.6 + k * 0.6), 0, TAU); ctx.fill(); }
+      else { ctx.strokeStyle = s.c; ctx.lineWidth = s.r * 1.6; ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x - s.vx * 0.05, s.y - s.vy * 0.05); ctx.stroke(); }
+    }
+    for (var j = 0; j < rings.length; j++) {
+      var g = rings[j], q = g.l / 0.55;
+      ctx.globalAlpha = Math.max(0, 1 - q); ctx.strokeStyle = "#bff4ff"; ctx.lineWidth = 3 * (1 - q) + 0.5;
+      ctx.beginPath(); ctx.arc(g.x, g.y, R * (0.15 + q * 0.9), 0, TAU); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawMeshGlow() {
+    var sp = Math.abs(v); if (sp < 1.6) return;
+    var a = Math.min(0.85, (sp - 1.6) * 0.16), o = offs(1), arr = layers[1];
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    for (var i = 0; i < arr.length; i++) {
+      var g = arr[i]; if (!g.parent) continue;
+      var p = g.parent, x = p.x + Math.cos(g.theta) * p.r + o[0], y = p.y + Math.sin(g.theta) * p.r + o[1], rad = g.m * 4;
+      var gr = ctx.createRadialGradient(x, y, 0, x, y, rad);
+      gr.addColorStop(0, "rgba(255,214,120," + a + ")"); gr.addColorStop(1, "rgba(255,140,40,0)");
+      ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, rad, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function drawHot() {
+    var g = drag ? drag.g : hotGear; if (!g) return;
+    var o = offs(1), x = g.x + o[0], y = g.y + o[1], ro = g.r + g.m * 1.6;
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    var gr = ctx.createRadialGradient(x, y, g.r * 0.6, x, y, ro);
+    gr.addColorStop(0, "rgba(120,220,255,0)"); gr.addColorStop(0.75, "rgba(120,220,255," + (drag ? 0.38 : 0.22) + ")"); gr.addColorStop(1, "rgba(120,220,255,0)");
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, ro, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+  function drawShoot() {
+    if (!shoot) return;
+    var k = Math.min(1, shoot.l / 0.25) * Math.max(0, 1 - (shoot.l - 0.9) / 0.5);
+    var gr = ctx.createLinearGradient(shoot.x, shoot.y, shoot.x - shoot.vx * 0.22, shoot.y - shoot.vy * 0.22);
+    gr.addColorStop(0, "rgba(255,255,255," + k + ")"); gr.addColorStop(1, "rgba(160,220,255,0)");
+    ctx.strokeStyle = gr; ctx.lineWidth = 2.2; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(shoot.x, shoot.y); ctx.lineTo(shoot.x - shoot.vx * 0.22, shoot.y - shoot.vy * 0.22); ctx.stroke();
+  }
+  function kickAt(x, y) {
+    offV += 26; v += 4.5; wobV += 1.6;
+    if (rings.length < 6) rings.push({ x: x, y: y, l: 0 });
+    addSpark(x, y, mobile ? 18 : 26, R * 3.4, false);
+    addSpark(x, y, mobile ? 8 : 12, R * 2.2, true);
+    taps = (t - tapT < 5 || reduced) ? taps + 1 : 1; tapT = t;
+    if (hint) {
+      hint.textContent = taps >= 6 ? "One more!" : taps >= 5 ? "Almost..." : taps >= 3 ? "Ooh. Keep tapping." : hintBase;
+      hint.classList.add("on");
+    }
+    if (taps >= 7 && !egg) { taps = 0; popEgg(); }
+  }
+  function popEgg() {
+    egg = { l: 0, ml: 5.2 };
+    var o = offs(1), y0 = CY + o[1], top = Math.max(76 + R * 0.4, y0 - R * 2.15);
+    egg.x = CX + o[0]; egg.y0 = y0; egg.y1 = top;
+    if (!reduced) {
+      shoot = { x: W * 0.15, y: Math.max(40, top - R * 1.2), vx: W * 0.55, vy: R * 0.6, l: 0 };
+      addSpark(egg.x, y0 - R * 0.6, 30, R * 3, true);
+    } else { egg.l = 0.8; }
+    if (!bubble) {
+      bubble = document.createElement("p");
+      bubble.className = "egg-bubble";
+      bubble.setAttribute("role", "status");
+      hero.appendChild(bubble);
+    }
+    bubble.textContent = "Look up!";
+    var r = R * 0.42, bx = egg.x + r + 10, right = bx + 120 > W - 8;
+    bubble.classList.toggle("left", right);
+    bubble.style.left = (right ? egg.x - r - 10 : bx) + "px";
+    bubble.style.top = egg.y1 + "px";
+    setTimeout(function () { if (bubble) bubble.classList.add("on"); }, reduced ? 0 : 520);
+    if (hint) hint.textContent = "You found the little planet.";
+    if (reduced) { draw(true); setTimeout(function () { egg = null; bubble.classList.remove("on"); if (hint) hint.textContent = hintBase; draw(true); }, 4500); }
+  }
+  function stepEgg(dt) {
+    if (!egg) return;
+    egg.l += dt;
+    if (egg.l > egg.ml - 0.7 && bubble) bubble.classList.remove("on");
+    if (egg.l >= egg.ml) { egg = null; if (hint) hint.textContent = hintBase; }
+  }
+  function easeBack(k) { var c = 2.2; k -= 1; return 1 + (c + 1) * k * k * k + c * k * k; }
+  function drawEgg() {
+    if (!egg) return;
+    var l = egg.l, k, y, sc;
+    if (l < 0.6) { k = easeBack(l / 0.6); sc = Math.min(1, l / 0.3); }
+    else if (l < egg.ml - 0.6) { k = 1; sc = 1; }
+    else { k = 1 - (l - (egg.ml - 0.6)) / 0.6; k = k * k; sc = k; }
+    y = egg.y0 + (egg.y1 - egg.y0) * k + (l > 0.6 && l < egg.ml - 0.6 && !reduced ? Math.sin(l * 3) * R * 0.05 : 0);
+    var x = egg.x, r = R * 0.42 * Math.max(0.05, sc);
+    ctx.save();
+    var gl = ctx.createRadialGradient(x, y, r * 0.8, x, y, r * 1.9);
+    gl.addColorStop(0, "rgba(120,220,255,.5)"); gl.addColorStop(1, "rgba(120,220,255,0)");
+    ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(x, y, r * 1.9, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.clip();
+    var sea = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r);
+    sea.addColorStop(0, "#5fd2ff"); sea.addColorStop(0.6, "#1d7fd6"); sea.addColorStop(1, "#0a3c86");
+    ctx.fillStyle = sea; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    ctx.fillStyle = "#56c23a";
+    ctx.beginPath(); ctx.ellipse(x - r * 0.45, y + r * 0.35, r * 0.42, r * 0.28, 0.5, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x + r * 0.55, y + r * 0.1, r * 0.3, r * 0.42, -0.3, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x - r * 0.1, y - r * 0.78, r * 0.36, r * 0.16, 0, 0, TAU); ctx.fill();
+    ctx.restore();
+    /* googly eyes looking up */
+    var er = r * 0.27, ey = y - r * 0.12, ex = r * 0.3;
+    for (var s = -1; s <= 1; s += 2) {
+      ctx.fillStyle = "#fff"; ctx.strokeStyle = "#161427"; ctx.lineWidth = Math.max(1, r * 0.05);
+      ctx.beginPath(); ctx.arc(x + s * ex, ey, er, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#161427"; ctx.beginPath(); ctx.arc(x + s * ex + s * er * 0.08, ey - er * 0.42, er * 0.5, 0, TAU); ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x + s * ex - er * 0.12, ey - er * 0.6, er * 0.15, 0, TAU); ctx.fill();
+    }
+    ctx.strokeStyle = "#161427"; ctx.lineWidth = Math.max(1, r * 0.06); ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(x, y + r * 0.28, r * 0.2, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+  }
+  function local(e) { var b = hero.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; }
+  function inMachine(x, y) { var o = offs(1), dx = x - CX - o[0], dy = y - CY - o[1]; return dx * dx + dy * dy < R * R * 10.5; }
+  function gearAt(x, y) {
+    var o = offs(1), arr = layers[1], best = null;
+    for (var i = 0; i < arr.length; i++) {
+      var g = arr[i], dx = x - g.x - o[0], dy = y - g.y - o[1], rr3 = g.r + g.m;
+      if (dx * dx + dy * dy < rr3 * rr3 && (!best || g.r < best.r)) best = g;
+    }
+    if (!best && inMachine(x, y)) {
+      var dx0 = x - CX - o[0], dy0 = y - CY - o[1];
+      if (dx0 * dx0 + dy0 * dy0 < R * R * 1.3) best = arr[0];
+    }
+    return best;
+  }
+  function blocked(e) { return !!(e.target.closest && e.target.closest(".hero-copy,header,a,button,input,label,form,.egg-bubble")); }
+  function setCursor(c) { if (hero.style.cursor !== c) hero.style.cursor = c; }
+  hero.addEventListener("pointerdown", function (e) {
+    if (!ready || blocked(e) || (e.pointerType === "mouse" && e.button !== 0)) return;
+    var p = local(e); if (!inMachine(p[0], p[1])) return;
+    var g = gearAt(p[0], p[1]);
+    drag = null;
+    if (g && !reduced) {
+      var o = offs(1);
+      drag = { g: g, id: e.pointerId, a: Math.atan2(p[1] - g.y - o[1], p[0] - g.x - o[0]), moved: 0, x: p[0], y: p[1], t: performance.now(), vs: 0 };
+      if (e.pointerType === "mouse") { try { hero.setPointerCapture(e.pointerId); } catch (er) {} setCursor("grabbing"); }
+    } else { kickAt(p[0], p[1]); }
+  });
+  hero.addEventListener("pointermove", function (e) {
+    var p = local(e);
+    if (drag && e.pointerId === drag.id) {
+      var g = drag.g, o = offs(1), a = Math.atan2(p[1] - g.y - o[1], p[0] - g.x - o[0]), da = a - drag.a;
+      if (da > Math.PI) da -= TAU; else if (da < -Math.PI) da += TAU;
+      drag.a = a; drag.moved += Math.abs(p[0] - drag.x) + Math.abs(p[1] - drag.y); drag.x = p[0]; drag.y = p[1];
+      if (drag.moved > 6 && g.w) {
+        var dA = da / g.w, now = performance.now(), dts = Math.max(0.008, (now - drag.t) / 1000);
+        A += dA; drag.vs = drag.vs * 0.6 + (dA / dts) * 0.4; drag.t = now;
+        if (Math.random() < 0.35) meshSpark();
+      }
+      return;
+    }
+    if (e.pointerType !== "mouse") return;
+    var over = !blocked(e) && inMachine(p[0], p[1]);
+    hoverM = over;
+    hotGear = over ? gearAt(p[0], p[1]) : null;
+    setCursor(hotGear && !reduced ? "grab" : over ? "pointer" : "");
+  }, { passive: true });
+  function endDrag(e) {
+    if (!drag || (e && e.pointerId !== drag.id)) return;
+    var d = drag; drag = null;
+    if (d.moved <= 6) kickAt(d.x, d.y);
+    else { v = Math.max(-28, Math.min(28, d.vs)); }
+    setCursor(hotGear ? "grab" : "");
+  }
+  hero.addEventListener("pointerup", endDrag);
+  hero.addEventListener("pointercancel", function (e) { if (drag && e.pointerId === drag.id) { if (drag.moved > 6) v = Math.max(-28, Math.min(28, drag.vs)); drag = null; } });
+  hero.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse" && !drag) { hoverM = false; hotGear = null; setCursor(""); } });
+
   function drawBack() {
     bctx.setTransform(BDPR, 0, 0, BDPR, 0, 0);
     bctx.clearRect(0, 0, W, H);
@@ -590,10 +810,19 @@
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.clearRect(0, 0, W, H);
     drawStreams();
+    drawShoot();
+    var wo = offs(1), wx = CX + wo[0], wy = CY + wo[1];
+    ctx.save();
+    if (wob) { ctx.translate(wx, wy); ctx.scale(1 + wob, 1 - wob); ctx.translate(-wx, -wy); }
+    drawMeshGlow();
     drawGearLayer(1);
+    drawHot();
     drawChunks(false);
     drawPlanet();
     drawChunks(true);
+    ctx.restore();
+    drawEgg();
+    drawSparks();
     drawPuffs();
     drawDrops();
     drawWater();
@@ -661,7 +890,11 @@
   }
 
   window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(relayout, 160); }, { passive: true });
-  window.addEventListener("scroll", function () { scrollY = window.scrollY || 0; }, { passive: true });
+  window.addEventListener("scroll", function () {
+    scrollY = window.scrollY || 0;
+    var d = scrollY - lastScroll; lastScroll = scrollY;
+    scrollBoost = Math.max(-7, Math.min(9, scrollBoost + d * 0.045));
+  }, { passive: true });
   window.addEventListener("pointermove", function (e) {
     if (e.pointerType !== "mouse") return;
     tpx = e.clientX / window.innerWidth - 0.5; tpy = e.clientY / window.innerHeight - 0.5;
