@@ -18,6 +18,13 @@
     } catch (e) { return ""; }
   }
 
+  document.querySelectorAll("a.mail").forEach(function (a) {
+    var to = dest(a);
+    if (!to) return;
+    a.href = "mailto:" + to + "?subject=" + encodeURIComponent("EARTH refund");
+    a.textContent = to;
+  });
+
   var form = document.getElementById("join");
   if (form) {
     var touched = false;

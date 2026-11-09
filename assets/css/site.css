@@ -266,3 +266,41 @@ p{margin:0 0 1em}
 .trailer-frame video{object-fit:contain;background:#000}
 .trailer-cta{margin-top:18px;text-align:center}
 .trailer-cta a.btn,.trailer-cta a.btn:hover{color:#141a33;text-decoration:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.trailer-cta{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.btn-line-dk{background:transparent;color:var(--ink);border-color:var(--ink2)}
+.btn-line-dk:hover{background:#fff;border-color:var(--ink)}
+.cta .btn+.btn{margin-left:10px}
+.tickets{display:grid;grid-template-columns:1.1fr .9fr;gap:44px;align-items:start}
+.tk-list{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px;max-width:38em}
+.tk-list li{position:relative;padding-left:30px;color:var(--ink2)}
+.tk-list li::before{content:"";position:absolute;left:0;top:.45em;width:16px;height:16px;border-radius:50%;background:var(--lime);box-shadow:inset 0 0 0 4px #5f9a12}
+.tk-list strong{color:var(--ink)}
+.tk-card{background:var(--card);color:var(--hero-ink);border-radius:16px;padding:28px;box-shadow:0 18px 40px rgba(7,11,31,.25)}
+.tk-tag{font:700 .78rem/1 var(--ui);letter-spacing:.16em;text-transform:uppercase;color:var(--yellow);margin:0 0 8px}
+.tk-price{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;margin:0 0 18px}
+.tk-now{font:700 3.4rem/1 var(--display);color:#fff}
+.tk-was{color:var(--hero-ink2);font-size:1rem}
+.tk-was s{color:#fff;opacity:.8}
+.tk-buy{width:100%;font-size:1.12rem;padding:17px 22px}
+.tk-buy,.tk-buy:hover{color:#0f1f05}
+.tk-fine{font-size:.82rem;color:var(--hero-ink2);margin:14px 0 0}
+.tk-card a:not(.btn){color:var(--yellow)}
+.tk-climate{display:flex;gap:12px;align-items:flex-start;margin-top:20px;padding:14px;border-radius:12px;background:rgba(166,240,58,.1);border:1px solid rgba(166,240,58,.4)}
+.tk-climate svg{flex:0 0 26px;width:26px;height:26px;color:var(--lime);margin-top:2px}
+.tk-climate p{margin:0;font-size:.92rem;color:var(--hero-ink)}
+.tk-climate strong{color:var(--lime)}
+.tk-sum{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:20px 22px;margin:22px 0 8px}
+.tk-sum p{margin:0 0 8px}
+.tk-sum p:last-child{margin:12px 0 0}
+.page ul,.page ol{padding-left:1.3em}
+.page li{margin:0 0 .5em}
+@media (max-width:900px){.tickets{grid-template-columns:1fr;gap:28px}}
+@media (max-width:760px){.tk-card{padding:22px}.tk-now{font-size:2.9rem}.cta .btn{display:flex;margin:0 auto 12px;max-width:320px}.cta .btn+.btn{margin-left:auto}}
+.band-line{border-bottom:1px solid var(--line)}
+.hero-buy{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 16px}
+.hero-buy span{font-size:.9rem;color:var(--hero-ink2)}
+.tk-vr{margin-top:18px;padding:14px;border-radius:12px;border:1px dashed rgba(255,210,61,.5)}
+.tk-vr p{margin:0;font-size:.9rem}
+.tk-vr .tk-tag{margin-bottom:6px}
+@media (max-width:760px){.hero-buy .btn{width:100%}}
