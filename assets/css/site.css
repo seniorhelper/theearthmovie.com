@@ -205,19 +205,6 @@ p{margin:0 0 1em}
 .log li.kind{display:block}
 #join{scroll-margin-top:90px}
 .foot nav{margin:4px 0 16px}
-.mw-logo{position:relative;display:inline-block;width:300px;max-width:100%;margin:0 0 14px;line-height:0;animation:mwFloat 6s ease-in-out infinite;filter:drop-shadow(0 6px 6px rgba(120,20,90,.28)) drop-shadow(0 14px 18px rgba(30,120,200,.18));transition:filter .25s;-webkit-tap-highlight-color:transparent}
-.mw-tilt{position:relative;display:block;transform-origin:50% 70%;will-change:transform}
-.mw-tilt img{display:block;width:100%;height:auto;animation:mwJelly 3.2s ease-in-out infinite;transform-origin:50% 90%;-webkit-user-drag:none;user-select:none}
-.mw-tilt::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 36%,rgba(255,255,255,.62) 46%,rgba(255,255,255,0) 56%) 0 0/250% 100% no-repeat;-webkit-mask:url(/assets/img/madwackd-logo-3d-600.webp) center/100% 100% no-repeat;mask:url(/assets/img/madwackd-logo-3d-600.webp) center/100% 100% no-repeat;mix-blend-mode:screen;animation:mwShine 4.5s ease-in-out infinite}
-.mw-logo.is-hot{filter:drop-shadow(0 8px 8px rgba(120,20,90,.32)) drop-shadow(0 18px 26px rgba(255,61,154,.32)) drop-shadow(0 0 18px rgba(34,199,255,.35))}
-.mw-big{display:block;width:clamp(270px,34vw,420px);margin:0 0 16px -6px;cursor:pointer;animation-duration:5s}
-.mw-logo:hover img{animation-duration:.9s}
-.mw-spark{position:fixed;inset:0;pointer-events:none;z-index:60}
-@keyframes mwFloat{0%,100%{transform:perspective(700px) rotateY(-9deg) rotateX(5deg) translateY(0)}50%{transform:perspective(700px) rotateY(9deg) rotateX(-4deg) translateY(-6px)}}
-@keyframes mwJelly{0%,100%{transform:scale(1,1)}30%{transform:scale(1.035,.97)}45%{transform:scale(.98,1.03)}60%{transform:scale(1.01,.995)}}
-@keyframes mwShine{0%,25%{background-position:120% 0}70%,100%{background-position:-60% 0}}
-@media (max-width:760px){.mw-big{width:min(290px,80vw)}}
-@media (prefers-reduced-motion:reduce){.mw-logo,.mw-tilt img,.mw-tilt::after{animation:none}}
 .menu-btn{display:none;width:46px;height:42px;border-radius:8px;border:1.5px solid rgba(244,247,255,.55);background:rgba(7,11,31,.55);cursor:pointer;padding:0;flex-direction:column;align-items:center;justify-content:center;margin-left:auto;margin-right:10px}
 .menu-btn span{display:block;width:20px;height:2px;background:#fff;margin:2.5px 0;transition:transform .2s,opacity .2s}
 .menu-btn[aria-expanded=true] span:nth-child(1){transform:translateY(4.5px) rotate(45deg)}

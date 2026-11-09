@@ -77,7 +77,7 @@
   if (gv && gb) {
     var setG = function () {
       var playing = !gv.paused;
-      gb.innerHTML = (playing ? icons.pause : icons.play) + "<span>" + (playing ? "Pause teaser" : "Play teaser") + "</span>";
+      gb.innerHTML = (playing ? icons.pause : icons.play) + "<span>" + (playing ? "Pause title" : "Play title") + "</span>";
       gb.setAttribute("aria-pressed", playing ? "true" : "false");
     };
     var userPaused = false;
@@ -101,10 +101,10 @@
   if (sv && sb) {
     var setS = function () {
       var playing = !sv.paused && !sv.ended;
-      sb.innerHTML = (playing ? icons.pause : icons.play) + "<span>" + (playing ? "Pause" : "Play the logo, sound on") + "</span>";
+      sb.innerHTML = (playing ? icons.pause : icons.play) + "<span>" + (playing ? "Pause" : "Play the logo") + "</span>";
     };
     sb.addEventListener("click", function () {
-      if (sv.paused || sv.ended) { sv.muted = false; sv.play().catch(function () {}); }
+      if (sv.paused || sv.ended) { sv.play().catch(function () {}); }
       else sv.pause();
     });
     sv.addEventListener("play", setS);
