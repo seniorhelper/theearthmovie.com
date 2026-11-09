@@ -278,3 +278,4 @@ p{margin:0 0 1em}
 .trailer-frame{margin-top:26px}
 .trailer-frame video{object-fit:contain;background:#000}
 .trailer-cta{margin-top:18px;text-align:center}
+.trailer-cta a.btn,.trailer-cta a.btn:hover{color:#141a33;text-decoration:none}
