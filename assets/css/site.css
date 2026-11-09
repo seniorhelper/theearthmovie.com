@@ -275,3 +275,6 @@ p{margin:0 0 1em}
   .hero-meta .eyebrow{font-size:.68rem;letter-spacing:.1em}
 }
 @media (max-width:340px){.join-row{grid-template-columns:1fr}}
+.trailer-frame{margin-top:26px}
+.trailer-frame video{object-fit:contain;background:#000}
+.trailer-cta{margin-top:18px;text-align:center}
